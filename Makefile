@@ -1,16 +1,18 @@
-all: main
-
 CXX = clang++
-override CXXFLAGS += -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network -lsfml-system -g -Wmost -Werror 
+CXXFLAGS = -std=c++11 -Wall -g
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
-SRCS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.cpp' -print | sed -e 's/ /\\ /g')
-HEADERS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.h' -print)
+SRCS = main.cpp Grid.cpp
+OBJS = $(SRCS:.cpp=.o)
+EXEC = main
 
-main: $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(SRCS) -o "$@"
+all: $(EXEC)
 
-main-debug: $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) -U_FORTIFY_SOURCE -O0 $(SRCS) -o "$@"
+$(EXEC): $(OBJS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f main main-debug
+	rm -f $(OBJS) $(EXEC)
