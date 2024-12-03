@@ -1,6 +1,7 @@
 #include "Grid.h"
 #include <fstream>
 #include <iostream>
+#include <sys/stat.h>
 
 // Constructeur pour initialiser la grille
 Grid::Grid(int width, int height, int cellSize)
@@ -9,7 +10,10 @@ Grid::Grid(int width, int height, int cellSize)
 // Méthode pour initialiser la grille à partir d'un fichier
 void Grid::initializeFromFile(const std::string& fileName) {
     std::ifstream fichier(fileName);
-    
+    std::string getFileName() {
+    return fileName;
+    }
+
     if (fichier) {
         fichier >> height >> width;
         cells.resize(height, std::vector<int>(width, 0));
@@ -22,8 +26,36 @@ void Grid::initializeFromFile(const std::string& fileName) {
 
         fichier.close();
     } else {
-        std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
+        ( "Impossible d'ouvrir le fichier !")
         exit(EXIT_FAILURE);
+    }
+}
+
+void Grid::createDirectoryAndFile() const {
+    // Récupérer le nom du dossier
+    std::string baseDirName = getFileName();
+
+    // Ajouter le suffixe "_out" pour le nom du dossier
+    std::string modifiedDirName = baseDirName + "_out";
+
+    // Créer le dossier
+    if (mkdir(modifiedDirName.c_str(), 0755) == 0) {
+        std::cout << "Dossier créé avec succès : " << modifiedDirName << std::endl;
+    } else {
+        perror("Erreur lors de la création du dossier");
+        return; // Arrêter si le dossier n'a pas pu être créé
+    }
+
+    // Créer un fichier texte dans ce dossier
+    std::string filePath = modifiedDirName + "/" + baseDirName + ".txt";
+    std::ofstream outFile(filePath);
+
+    if (outFile) {
+        outFile << "Nom du fichier : " << baseDirName << std::endl;
+        outFile.close();
+        std::cout << "Fichier créé avec succès : " << filePath << std::endl;
+    } else {
+        std::cerr << "Erreur lors de la création du fichier : " << filePath << std::endl;
     }
 }
 
