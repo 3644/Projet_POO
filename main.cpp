@@ -20,23 +20,25 @@ int main() {
         std::cout << "Erreur" << std::endl;
         return 0;
     } else if (mode == 0) {
-        std::cout<<"Choissisez la durée entre les itérations (en secondes)";
+        std::cout << "Choissisez la durée entre les itérations (en millisecondes) : ";
         std::cin >> sleep_time;
+        sleep_time = sleep_time / 1000;
+
         // Window and grid configuration
         const int cellSize = 10;
-        const int gridWidth = 80;
-        const int gridHeight = 80;
-        const int windowWidth = gridWidth * cellSize;
-        const int windowHeight = gridHeight * cellSize;
-
-        // Create SFML window
-        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
 
         // Create the grid object
-        Grid grid(gridWidth, gridHeight, cellSize);
+        Grid grid(0, 0, cellSize);  // Les dimensions seront mises à jour par le fichier
 
         // Initialize the grid from the file provided by the user
         grid.initializeFromFile(filePath);
+
+        // Mettre à jour la taille de la fenêtre en fonction de la grille
+        const int windowWidth = grid.getWidth() * cellSize;
+        const int windowHeight = grid.getHeight() * cellSize;
+
+        // Create SFML window
+        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
 
         while (window.isOpen()) {
             sf::Event event;
@@ -54,7 +56,7 @@ int main() {
             grid.render(window);
             window.display();
 
-            //Pause
+            // Pause
             sleep(sleep_time);
         }
     }

@@ -12,6 +12,9 @@ public:
     void render(sf::RenderWindow &window);
     void computeNextState(); // Update l'état de la grille
 
+    int getWidth() const { return width; }   // Accesseur pour la largeur
+    int getHeight() const { return height; } // Accesseur pour la hauteur
+
 private:
     int width;
     int height;
