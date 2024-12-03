@@ -20,7 +20,7 @@ public:
     int getCellState(int x, int y) const; // Obtenir l'état d'une cellule spécifique
 
 private:
-    int width;  // Largeur de la g
+    int width;  // Largeur de la grille
     int height; // Hauteur de la grille
     int cellSize; // Taille de chaque cellule pour l'affichage graphique
     std::vector<std::vector<int>> cells;  // Représentation de la grille avec un tableau 2D

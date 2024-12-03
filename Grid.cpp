@@ -91,21 +91,25 @@ void Grid::render(sf::RenderWindow &window) {
 
 // Compter le nombre de voisins vivants d'une cellule
 int Grid::countLivingNeighbors(int x, int y) const {
-    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
-    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    // Tableau des décalages pour les 8 voisins potentiels
+    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1}; //  Variations de l'axe x pour aller vers chaque voisin
+    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1}; // pour y
     int count = 0;
 
-    // Parcourir les 8 voisins potentiels
+    // Parcourir les 8 voisins potentiels autour de la cellule (x, y)
     for (int i = 0; i < 8; ++i) {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
+        int nx = x + dx[i];  // Calculer la coordonnée x du voisin
+        int ny = y + dy[i];  // Calculer la coordonnée y du voisin
+
+        // Vérifier si les coordonnées du voisin sont dans les limites de la grille
         if (nx >= 0 && nx < height && ny >= 0 && ny < width) {
+            // Si la cellule voisine est vivante (valeur 1), incrémenter le compteur
             if (cells[nx][ny] == 1) {
                 count++;
             }
         }
     }
-    return count;
+    return count;  // Retourner le nombre de voisins vivants
 }
 
 // Calculer l'état suivant de la grille
