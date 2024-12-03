@@ -21,6 +21,7 @@ private:
     int cellSize;
     std::vector<std::vector<int>> cells;
     int countLivingNeighbors(int x, int y) const; // Compter les voisins vivants
+    static const int obstacle = -1; // Nouvelle valeur pour les cellules obstacles
 };
 
 #endif

@@ -34,6 +34,8 @@ void Grid::render(sf::RenderWindow &window) {
             cell.setPosition(y * cellSize, x * cellSize);
             if (cells[x][y] == 1) {
                 cell.setFillColor(sf::Color::White);
+            } else if (cells[x][y] == obstacle) {
+                cell.setFillColor(sf::Color::Red); // Cellules obstacles en rouge
             } else {
                 cell.setFillColor(sf::Color::Black);
             }
@@ -51,7 +53,9 @@ int Grid::countLivingNeighbors(int x, int y) const {
         int nx = x + dx[i];
         int ny = y + dy[i];
         if (nx >= 0 && nx < height && ny >= 0 && ny < width) {
-            count += cells[nx][ny];
+            if (cells[nx][ny] == 1) {
+                count++;
+            }
         }
     }
 
@@ -63,6 +67,10 @@ void Grid::computeNextState() {
 
     for (int x = 0; x < height; ++x) {
         for (int y = 0; y < width; ++y) {
+            if (cells[x][y] == obstacle) {
+                continue; // Celles obstacles ne changent pas d'état
+            }
+
             int livingNeighbors = countLivingNeighbors(x, y);
 
             if (cells[x][y] == 1) { // Cellulle en vie
@@ -77,5 +85,5 @@ void Grid::computeNextState() {
         }
     }
 
-    cells = newCells; // Update 
+    cells = newCells; // Mise a jour
 }
