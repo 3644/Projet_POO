@@ -16,6 +16,17 @@ int main() {
     // Construire le chemin complet du fichier
     std::string filePath = "./etats/" + fileName;
 
+    // Demander à l'utilisateur de fournir la taille des cellules
+    int cellSize;
+    std::cout << "Entrez la taille des cellules (en pixels) : ";
+    std::cin >> cellSize;
+
+    // Créer l'objet grille
+    Grid grid(0, 0, cellSize);  // La taille des cellules est définie par l'utilisateur
+
+    // Initialiser la grille à partir du fichier fourni par l'utilisateur
+    grid.initializeFromFile(filePath);
+
     // Demander à l'utilisateur de choisir un mode (console ou graphique)
     int mode;
     std::cout << "Tapez 1 pour le Mode Console.\n";
@@ -27,12 +38,6 @@ int main() {
         int iterations;
         std::cout << "Combien d'itérations voulez-vous exécuter ? ";
         std::cin >> iterations;
-
-        // Créer l'objet grille
-        Grid grid(0, 0, 1);  // La taille des cellules n'a pas d'importance ici pour le mode console
-
-        // Initialiser la grille à partir du fichier fourni par l'utilisateur
-        grid.initializeFromFile(filePath);
 
         // Créer le dossier de sortie pour les fichiers d'état après chaque itération
         std::string outputDir = "./" + fileName + "_out";
@@ -69,15 +74,6 @@ int main() {
         std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
         std::cin >> sleep_time;
         sleep_time = sleep_time / 1000;  // Convertir en secondes pour la fonction sleep
-
-        // Configuration de la fenêtre et de la grille
-        const int cellSize = 35;  // Taille des cellules en pixels
-
-        // Créer l'objet grille
-        Grid grid(0, 0, cellSize);  // Les dimensions seront mises à jour en fonction du fichier fourni
-
-        // Initialiser la grille à partir du fichier fourni par l'utilisateur
-        grid.initializeFromFile(filePath);
 
         // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
         const int windowWidth = grid.getWidth() * cellSize;
