@@ -43,22 +43,19 @@ void Grid::render(sf::RenderWindow &window) {
 }
 
 int Grid::countLivingNeighbors(int x, int y) const {
-    int aliveNeighbors = 0;
+    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    int count = 0;
 
-    for (int dx = -1; dx <= 1; ++dx) {
-        for (int dy = -1; dy <= 1; ++dy) {
-            if (dx == 0 && dy == 0) continue; // Ignore the current cell
-
-            int nx = x + dx;
-            int ny = y + dy;
-
-            if (nx >= 0 && nx < height && ny >= 0 && ny < width) {
-                aliveNeighbors += cells[nx][ny];
-            }
+    for (int i = 0; i < 8; ++i) {
+        int nx = x + dx[i];
+        int ny = y + dy[i];
+        if (nx >= 0 && nx < height && ny >= 0 && ny < width) {
+            count += cells[nx][ny];
         }
     }
 
-    return aliveNeighbors;
+    return count;
 }
 
 void Grid::computeNextState() {
@@ -66,20 +63,19 @@ void Grid::computeNextState() {
 
     for (int x = 0; x < height; ++x) {
         for (int y = 0; y < width; ++y) {
-            int aliveNeighbors = countLivingNeighbors(x, y);
+            int livingNeighbors = countLivingNeighbors(x, y);
 
-            // Apply Game of Life rules
-            if (cells[x][y] == 1 && aliveNeighbors < 2) {
-                newCells[x][y] = 0; // Dies due to underpopulation
-            } else if (cells[x][y] == 1 && (aliveNeighbors == 2 || aliveNeighbors == 3)) {
-                newCells[x][y] = 1; // Lives
-            } else if (cells[x][y] == 1 && aliveNeighbors > 3) {
-                newCells[x][y] = 0; // Dies due to overpopulation
-            } else if (cells[x][y] == 0 && aliveNeighbors == 3) {
-                newCells[x][y] = 1; // Becomes alive due to reproduction
+            if (cells[x][y] == 1) { // Cellulle en vie
+                if (livingNeighbors < 2 || livingNeighbors > 3) {
+                    newCells[x][y] = 0; // Cellule meurs
+                }
+            } else { // Cellulle est morte
+                if (livingNeighbors == 3) {
+                    newCells[x][y] = 1; // Cellulle deviens vivante
+                }
             }
         }
     }
 
-    cells = newCells; // Update the grid to the next state
+    cells = newCells; // Update 
 }
