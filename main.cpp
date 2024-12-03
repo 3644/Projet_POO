@@ -1,7 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include "Grid.h"
+#include <iostream>
 
 int main() {
+    // Ask the user to provide a file path
+    std::string filePath;
+    std::cout << "Please enter the path to the initial state file: ";
+    std::cin >> filePath;
+
     // Window and grid configuration
     const int cellSize = 10;
     const int gridWidth = 80;
@@ -15,8 +21,8 @@ int main() {
     // Create the grid object
     Grid grid(gridWidth, gridHeight, cellSize);
 
-    // Initialize the grid from a file ("test.txt")
-    grid.initializeFromFile("test.txt");
+    // Initialize the grid from the file provided by the user
+    grid.initializeFromFile(filePath);
 
     while (window.isOpen()) {
         sf::Event event;
