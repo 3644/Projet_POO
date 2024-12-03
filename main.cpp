@@ -8,40 +8,52 @@ int main() {
     std::cout << "Please enter the path to the initial state file: ";
     std::cin >> filePath;
 
-    // Window and grid configuration
-    const int cellSize = 10;
-    const int gridWidth = 80;
-    const int gridHeight = 80;
-    const int windowWidth = gridWidth * cellSize;
-    const int windowHeight = gridHeight * cellSize;
+    // Ask the user to choose a mode
+    int mode;
+    std::cout << "Tapez 1 pour le Mode Console.\n";
+    std::cout << "Tapez 0 pour le Mode Graphique.\n";
+    std::cin >> mode;
 
-    // Create SFML window
-    sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
+    if (mode == 1) {
+        std::cout << "Erreur" << std::endl;
+        return 0;
+    } else if (mode == 0) {
 
-    // Create the grid object
-    Grid grid(gridWidth, gridHeight, cellSize);
+        // Window and grid configuration
+        const int cellSize = 10;
+        const int gridWidth = 80;
+        const int gridHeight = 80;
+        const int windowWidth = gridWidth * cellSize;
+        const int windowHeight = gridHeight * cellSize;
 
-    // Initialize the grid from the file provided by the user
-    grid.initializeFromFile(filePath);
+        // Create SFML window
+        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
+        // Create the grid object
+        Grid grid(gridWidth, gridHeight, cellSize);
+
+        // Initialize the grid from the file provided by the user
+        grid.initializeFromFile(filePath);
+
+        while (window.isOpen()) {
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                }
             }
+
+            // Compute the next state of the grid
+            grid.computeNextState();
+
+            // Render the grid
+            window.clear();
+            grid.render(window);
+            window.display();
+
+            // Pause to slow down the simulation (100ms)
+            sf::sleep(sf::milliseconds(100));
         }
-
-        // Compute the next state of the grid
-        grid.computeNextState();
-
-        // Render the grid
-        window.clear();
-        grid.render(window);
-        window.display();
-
-        // Pause to slow down the simulation (100ms)
-        sf::sleep(sf::milliseconds(100));
     }
 
     return 0;
