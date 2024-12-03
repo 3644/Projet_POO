@@ -43,25 +43,34 @@ int main() {
         // Créer la fenêtre SFML
         sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
 
-        while (window.isOpen()) {
-            sf::Event event;
-            while (window.pollEvent(event)) {
-                if (event.type == sf::Event::Closed) {
-                    window.close();
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::B) {
+                    // Placer le Blinker à un emplacement aléatoire
+                    grid.placeBlinker();
+                } else if (event.key.code == sf::Keyboard::G) {
+                    // Placer le Glider à un emplacement aléatoire
+                    grid.placeGlider();
                 }
             }
-
-            // Calculer le prochain état de la grille
-            grid.computeNextState();
-
-            // Afficher la grille
-            window.clear();
-            grid.render(window);
-            window.display();
-
-            // Pause
-            sleep(sleep_time);
         }
+
+        // Calculer le prochain état de la grille
+        grid.computeNextState();
+
+        // Afficher la grille
+        window.clear();
+        grid.render(window);
+        window.display();
+
+        // Pause
+        sleep(sleep_time);
+    }
+
     }
 
     return 0;

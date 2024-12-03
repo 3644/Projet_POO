@@ -14,6 +14,8 @@ public:
 
     int getWidth() const { return width; }   // Accesseur pour la largeur
     int getHeight() const { return height; } // Accesseur pour la hauteur
+    void placeBlinker();
+    void placeGlider();
 
 private:
     int width;
