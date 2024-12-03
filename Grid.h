@@ -7,26 +7,25 @@
 
 class Grid {
 public:
-    Grid(int width, int height, int cellSize);
-    void initializeFromFile(const std::string& fileName);
-    void render(sf::RenderWindow &window);
-    void computeNextState(); // Update l'état de la grille
+    Grid(int width, int height, int cellSize);  // Constructeur
+    void initializeFromFile(const std::string& fileName);  // Initialiser la grille depuis un fichier
+    void render(sf::RenderWindow &window);  // Dessiner la grille sur la fenêtre
+    void computeNextState(); // Calculer l'état suivant de la grille
 
     int getWidth() const { return width; }   // Accesseur pour la largeur
     int getHeight() const { return height; } // Accesseur pour la hauteur
-    void placeBlinker();
-    void placeGlider();
-
-    int getCellState(int x, int y) const; // Nouvelle méthode pour obtenir l'état d'une cellule
-
+    void placeBlinker();  // Placer un motif "Blinker"
+    void placeGlider();  // Placer un motif "Glider"
+    int countLivingCells() const;  // Compter le nombre de cellules vivantes
+    int getCellState(int x, int y) const; // Obtenir l'état d'une cellule spécifique
 
 private:
-    int width;
-    int height;
-    int cellSize;
-    std::vector<std::vector<int>> cells;
-    int countLivingNeighbors(int x, int y) const; // Compter les voisins vivants
-    static const int obstacle = -1; // Nouvelle valeur pour les cellules obstacles
+    int width;  // Largeur de la g
+    int height; // Hauteur de la grille
+    int cellSize; // Taille de chaque cellule pour l'affichage graphique
+    std::vector<std::vector<int>> cells;  // Représentation de la grille avec un tableau 2D
+    int countLivingNeighbors(int x, int y) const; // Compter les voisins vivants d'une cellule
+    static const int obstacle = -1; // Valeur pour représenter les cellules obstacles
 };
 
 #endif

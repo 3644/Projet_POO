@@ -1,9 +1,9 @@
 #include "Grid.h"
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>  // Pour l'affichage graphique avec SFML
 #include <iostream>
 #include <fstream>
-#include <unistd.h>
-#include <filesystem>  // Pour créer des dossiers
+#include <unistd.h>           // Pour la fonction sleep
+#include <filesystem>         // Pour créer des dossiers
 
 namespace fs = std::filesystem;
 
@@ -16,7 +16,7 @@ int main() {
     // Construire le chemin complet du fichier
     std::string filePath = "./etats/" + fileName;
 
-    // Demander à l'utilisateur de choisir un mode
+    // Demander à l'utilisateur de choisir un mode (console ou graphique)
     int mode;
     std::cout << "Tapez 1 pour le Mode Console.\n";
     std::cout << "Tapez 0 pour le Mode Graphique.\n";
@@ -29,12 +29,12 @@ int main() {
         std::cin >> iterations;
 
         // Créer l'objet grille
-        Grid grid(0, 0, 1);  // La taille des cellules n'a pas d'importance ici
+        Grid grid(0, 0, 1);  // La taille des cellules n'a pas d'importance ici pour le mode console
 
         // Initialiser la grille à partir du fichier fourni par l'utilisateur
         grid.initializeFromFile(filePath);
 
-        // Créer le dossier de sortie
+        // Créer le dossier de sortie pour les fichiers d'état après chaque itération
         std::string outputDir = "./" + fileName + "_out";
         fs::create_directory(outputDir);
 
@@ -53,10 +53,11 @@ int main() {
                     }
                     outputFile << "\n";
                 }
-                outputFile.close();
+                outputFile.close();  // Fermer le fichier après l'écriture
             } else {
+                // Gérer l'erreur si le fichier ne peut pas être créé
                 std::cout << "Erreur : impossible de créer le fichier " << outputFilePath << std::endl;
-                return 1;
+                return 1;  // Arrêter l'exécution en cas d'erreur
             }
 
             // Calculer le prochain état de la grille
@@ -67,59 +68,69 @@ int main() {
         int sleep_time;
         std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
         std::cin >> sleep_time;
-        sleep_time = sleep_time / 1000;
+        sleep_time = sleep_time / 1000;  // Convertir en secondes pour la fonction sleep
 
         // Configuration de la fenêtre et de la grille
-        const int cellSize = 35;
+        const int cellSize = 35;  // Taille des cellules en pixels
 
         // Créer l'objet grille
-        Grid grid(0, 0, cellSize);  // Les dimensions seront mises à jour par le fichier
+        Grid grid(0, 0, cellSize);  // Les dimensions seront mises à jour en fonction du fichier fourni
 
         // Initialiser la grille à partir du fichier fourni par l'utilisateur
         grid.initializeFromFile(filePath);
 
-        // Mettre à jour la taille de la fenêtre en fonction de la grille
+        // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
         const int windowWidth = grid.getWidth() * cellSize;
         const int windowHeight = grid.getHeight() * cellSize;
 
-        // Créer la fenêtre SFML
+        // Créer la fenêtre SFML pour l'affichage du jeu
         sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
 
-    bool paused = false;  // Variable pour contrôler l'état de pause
+        bool paused = false;  // Variable pour contrôler l'état de pause
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            } else if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::B) {
-                    grid.placeBlinker();
-                } else if (event.key.code == sf::Keyboard::G) {
-                    grid.placeGlider();
-                } else if (event.key.code == sf::Keyboard::P) {
-                    paused = !paused;  // Basculer l'état de pause
+        // Boucle principale de la fenêtre graphique
+        while (window.isOpen()) {
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    // Fermer la fenêtre si l'utilisateur clique sur la croix
+                    window.close();
+                } else if (event.type == sf::Event::KeyPressed) {
+                    // Gérer les différentes touches pressées par l'utilisateur
+                    if (event.key.code == sf::Keyboard::B) {
+                        grid.placeBlinker();  // Placer un motif Blinker sur la grille
+                    } else if (event.key.code == sf::Keyboard::G) {
+                        grid.placeGlider();  // Placer un motif Glider sur la grille
+                    } else if (event.key.code == sf::Keyboard::P) {
+                        paused = !paused;  // Basculer l'état de pause
+                    }
                 }
+            }
+
+            if (!paused) {
+                // Calculer le prochain état de la grille uniquement si le jeu n'est pas en pause
+                grid.computeNextState();
+
+                // Calculer le nombre de cellules vivantes et mortes
+                int livingCells = grid.countLivingCells();
+                int totalCells = grid.getWidth() * grid.getHeight();
+                int deadCells = totalCells - livingCells;
+
+                // Afficher dans la console le nombre de cellules vivantes et mortes
+                std::cout << "Vivantes: " << livingCells << " | Mortes: " << deadCells << std::endl;
+            }
+
+            // Effacer la fenêtre pour un nouvel affichage
+            window.clear();
+            grid.render(window);  // Dessiner la grille dans la fenêtre
+            window.display();  // Afficher le nouveau contenu de la fenêtre
+
+            // Pause entre les itérations pour réguler la vitesse d'affichage
+            if (!paused) {
+                sleep(sleep_time);
             }
         }
 
-            // Calculer le prochain état de la grille
-    if (!paused) {
-        // Calculer le prochain état de la grille uniquement si le jeu n'est pas en pause
-        grid.computeNextState();
+        return 0;  // Terminer le programme
     }
-
-            // Afficher la grille
-            window.clear();
-            grid.render(window);
-            window.display();
-
-            // Pause
-        if (!paused) {
-            sleep(sleep_time);
-        }
-    }
-
-    return 0;
-}
 }
