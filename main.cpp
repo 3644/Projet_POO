@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Grid.h"
 #include <iostream>
+#include <unistd.h>
 
 int main() {
     // Ask the user to provide a file path
@@ -13,12 +14,14 @@ int main() {
     std::cout << "Tapez 1 pour le Mode Console.\n";
     std::cout << "Tapez 0 pour le Mode Graphique.\n";
     std::cin >> mode;
+    int sleep_time;
 
     if (mode == 1) {
         std::cout << "Erreur" << std::endl;
         return 0;
     } else if (mode == 0) {
-
+        std::cout<<"Choissisez la durée entre les itérations (en secondes)";
+        std::cin >> sleep_time;
         // Window and grid configuration
         const int cellSize = 10;
         const int gridWidth = 80;
@@ -51,8 +54,8 @@ int main() {
             grid.render(window);
             window.display();
 
-            // Pause to slow down the simulation (100ms)
-            sf::sleep(sf::milliseconds(100));
+            //Pause
+            sleep(sleep_time);
         }
     }
 
