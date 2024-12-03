@@ -17,6 +17,9 @@ public:
     void placeBlinker();
     void placeGlider();
 
+    int getCellState(int x, int y) const; // Nouvelle méthode pour obtenir l'état d'une cellule
+
+
 private:
     int width;
     int height;

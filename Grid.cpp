@@ -62,6 +62,11 @@ void Grid::placeGlider() {
 }
 
 
+
+int Grid::getCellState(int x, int y) const {
+    return cells[x][y];
+}
+
 void Grid::render(sf::RenderWindow &window) {
     sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
 
@@ -119,6 +124,6 @@ void Grid::computeNextState() {
             }
         }
     }
-    
+
     cells = newCells; // Mise a jour
 }
