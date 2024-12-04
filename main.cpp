@@ -33,45 +33,80 @@ int main() {
     std::cout << "Tapez 0 pour le Mode Graphique.\n";
     std::cin >> mode;
 
-    if (mode == 1) {
-        // Mode console
-        int iterations;
-        std::cout << "Combien d'itérations voulez-vous exécuter ? ";
-        std::cin >> iterations;
+if (mode == 1) {
+    // Mode console
+    int iterations;
+    std::cout << "Combien d'itérations voulez-vous exécuter ? (Entrez -1 pour une exécution infinie jusqu'à stabilisation) ";
+    std::cin >> iterations;
 
-        // Créer le dossier de sortie pour les fichiers d'état après chaque itération
-        std::string outputDir = "./" + fileName + "_out";
-        fs::create_directory(outputDir);
+    // Créer le dossier de sortie pour les fichiers d'état après chaque itération
+    std::string outputDir = "./" + fileName + "_out";
+    fs::create_directory(outputDir);
 
-        // Effectuer les itérations et écrire chaque état dans un fichier
-        for (int i = 0; i < iterations; ++i) {
-            // Nom du fichier de sortie pour chaque itération
-            std::string outputFilePath = outputDir + "/iteration_" + std::to_string(i) + ".txt";
+    // Variable pour stocker l'état précédent de la grille
+    std::vector<std::vector<int>> previousState(grid.getHeight(), std::vector<int>(grid.getWidth()));
 
-            // Ouvrir le fichier de sortie
-            std::ofstream outputFile(outputFilePath);
-            if (outputFile) {
-                // Écrire l'état actuel de la grille dans le fichier
-                for (int x = 0; x < grid.getHeight(); ++x) {
-                    for (int y = 0; y < grid.getWidth(); ++y) {
-                        outputFile << grid.getCellState(x, y) << " ";
-                    }
-                    outputFile << "\n";
-                }
-                outputFile.close();  // Fermer le fichier après l'écriture
-            } else {
-                // Gérer l'erreur si le fichier ne peut pas être créé
-                std::cout << "Erreur : impossible de créer le fichier " << outputFilePath << std::endl;
-                return 1;  // Arrêter l'exécution en cas d'erreur
+    int currentIteration = 0;
+    bool stabilized = false;  // Indique si le jeu a atteint la stabilisation
+
+    while (iterations == -1 || currentIteration < iterations) {
+        // Sauvegarder l'état actuel
+        for (int x = 0; x < grid.getHeight(); ++x) {
+            for (int y = 0; y < grid.getWidth(); ++y) {
+                previousState[x][y] = grid.getCellState(x, y);
             }
-
-            // Calculer le prochain état de la grille
-            grid.computeNextState();
         }
+
+        // Nom du fichier de sortie pour chaque itération
+        std::string outputFilePath = outputDir + "/iteration_" + std::to_string(currentIteration) + ".txt";
+
+        // Ouvrir le fichier de sortie
+        std::ofstream outputFile(outputFilePath);
+        if (outputFile) {
+            // Écrire l'état actuel de la grille dans le fichier
+            for (int x = 0; x < grid.getHeight(); ++x) {
+                for (int y = 0; y < grid.getWidth(); ++y) {
+                    outputFile << grid.getCellState(x, y) << " ";
+                }
+                outputFile << "\n";
+            }
+            outputFile.close();  // Fermer le fichier après l'écriture
+        } else {
+            // Gérer l'erreur si le fichier ne peut pas être créé
+            std::cout << "Erreur : impossible de créer le fichier " << outputFilePath << std::endl;
+            return 1;  // Arrêter l'exécution en cas d'erreur
+        }
+
+        // Calculer le prochain état de la grille
+        grid.computeNextState();
+
+        // Vérifier si l'état est stable (grille identique à l'état précédent)
+        stabilized = true;
+        for (int x = 0; x < grid.getHeight(); ++x) {
+            for (int y = 0; y < grid.getWidth(); ++y) {
+                if (previousState[x][y] != grid.getCellState(x, y)) {
+                    stabilized = false;
+                    break;
+                }
+            }
+            if (!stabilized) break;
+        }
+
+        // Arrêter si la grille est stabilisée
+        if (stabilized) {
+            std::cout << "Le jeu est stabilisé à l'itération " << currentIteration << ".\n";
+            break;
+        }
+
+        ++currentIteration;
+    }
     } else if (mode == 0) {
         // Mode graphique
         int sleep_time;
-        std::cout << "Choisissez la durée entre les itérations 00 (en millisecondes) : ";
+        std::cout << "Presser la touche B ajoutera a la grille un Blinker a une position aléatoire.\n";
+        std::cout << "Presser la touche G ajoutera a la grille un Glider a une position aléatoire.\n";
+        std::cout << "Presser la touche P mettra le jeu en pause.\n";
+        std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
         std::cin >> sleep_time; 
 
         // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
@@ -79,7 +114,7 @@ int main() {
         const int windowHeight = grid.getHeight() * cellSize;
 
         // Créer la fenêtre SFML pour l'affichage du jeu
-        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
+        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Jeu de la vie -  Projet POO");
 
         bool paused = false;  // Variable pour contrôler l'état de pause
 
