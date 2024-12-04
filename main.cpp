@@ -49,7 +49,7 @@ if (mode == 1) {
 
     // Demander à l'utilisateur s'il souhaite un mode manuel ou automatique
     int manualMode;
-    std::cout << "Tapez 1 pour le mode manuel (appuyez sur espace puis entrée puis entrée), ou 0 pour le mode automatique : ";
+    std::cout << "Tapez 1 pour le mode manuel (b/g/n pour interagir), ou 0 pour le mode automatique : ";
     std::cin >> manualMode;
 
     // Créer le dossier de sortie pour les fichiers d'état après chaque itération
@@ -63,6 +63,21 @@ if (mode == 1) {
     bool stabilized = false;  // Indique si le jeu a atteint la stabilisation
 
     while (iterations == -1 || currentIteration < iterations) {
+        // Ajouter des options pour placer des blinkers et des gliders
+        if (manualMode == 1) {
+            char action;
+            std::cout << "Entrez 'b' pour ajouter un Blinker, 'g' pour ajouter un Glider, ou 'n' pour continuer à la prochaine itération : ";
+            std::cin >> action;
+            if (action == 'b') {
+                grid.placeBlinker();
+            } else if (action == 'g') {
+                grid.placeGlider();
+            } else if (action != 'n') {
+                std::cout << "Action invalide. Veuillez entrer 'b', 'g', ou 'n'.\n";
+                continue; // Redemander une action valide
+            }
+        }
+
         // Sauvegarder l'état actuel
         for (int x = 0; x < grid.getHeight(); ++x) {
             for (int y = 0; y < grid.getWidth(); ++y) {
@@ -113,19 +128,13 @@ if (mode == 1) {
 
         ++currentIteration;
 
-        // Ajouter le mode manuel ou automatique
-        if (manualMode == 1) {
-            // Mode manuel : attendre que l'utilisateur appuie sur espace pour continuer
-            std::cout << "Appuyez sur espace pour continuer...\n";
-            while (std::cin.get() != ' ') {
-                // Boucle d'attente jusqu'à ce que l'utilisateur appuie sur espace
-            }
-        } else {
+        if (manualMode == 0) {
             // Mode automatique : pause entre les itérations
             usleep(sleep_time*1000);
         }
-
     }
+}
+
     } else if (mode == 0) {
         // Mode graphique
         std::cout << "Presser la touche B ajoutera a la grille un Blinker a une position aléatoire.\n";
