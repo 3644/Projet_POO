@@ -71,9 +71,8 @@ int main() {
     } else if (mode == 0) {
         // Mode graphique
         int sleep_time;
-        std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
-        std::cin >> sleep_time;
-        sleep_time = sleep_time / 1000;  // Convertir en secondes pour la fonction sleep
+        std::cout << "Choisissez la durée entre les itérations 00 (en millisecondes) : ";
+        std::cin >> sleep_time; 
 
         // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
         const int windowWidth = grid.getWidth() * cellSize;
@@ -123,7 +122,7 @@ int main() {
 
             // Pause entre les itérations pour réguler la vitesse d'affichage
             if (!paused) {
-                sleep(sleep_time);
+                usleep(sleep_time*1000); //microsecondes en millisecondes
             }
         }
 
