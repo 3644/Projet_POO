@@ -27,17 +27,30 @@ int main() {
     // Initialiser la grille à partir du fichier fourni par l'utilisateur
     grid.initializeFromFile(filePath);
 
+    int sleep_time;
+    std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
+    std::cin >> sleep_time; 
+
+
     // Demander à l'utilisateur de choisir un mode (console ou graphique)
     int mode;
     std::cout << "Tapez 1 pour le Mode Console.\n";
     std::cout << "Tapez 0 pour le Mode Graphique.\n";
     std::cin >> mode;
 
+
+    
+
 if (mode == 1) {
     // Mode console
     int iterations;
     std::cout << "Combien d'itérations voulez-vous exécuter ? (Entrez -1 pour une exécution infinie jusqu'à stabilisation) ";
     std::cin >> iterations;
+
+    // Demander à l'utilisateur s'il souhaite un mode manuel ou automatique
+    int manualMode;
+    std::cout << "Tapez 1 pour le mode manuel (appuyez sur espace puis entrée puis entrée), ou 0 pour le mode automatique : ";
+    std::cin >> manualMode;
 
     // Créer le dossier de sortie pour les fichiers d'état après chaque itération
     std::string outputDir = "./" + fileName + "_out";
@@ -99,15 +112,26 @@ if (mode == 1) {
         }
 
         ++currentIteration;
+
+        // Ajouter le mode manuel ou automatique
+        if (manualMode == 1) {
+            // Mode manuel : attendre que l'utilisateur appuie sur espace pour continuer
+            std::cout << "Appuyez sur espace pour continuer...\n";
+            while (std::cin.get() != ' ') {
+                // Boucle d'attente jusqu'à ce que l'utilisateur appuie sur espace
+            }
+        } else {
+            // Mode automatique : pause entre les itérations
+            usleep(sleep_time*1000);
+        }
+
     }
     } else if (mode == 0) {
         // Mode graphique
-        int sleep_time;
         std::cout << "Presser la touche B ajoutera a la grille un Blinker a une position aléatoire.\n";
         std::cout << "Presser la touche G ajoutera a la grille un Glider a une position aléatoire.\n";
         std::cout << "Presser la touche P mettra le jeu en pause.\n";
-        std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
-        std::cin >> sleep_time; 
+
 
         // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
         const int windowWidth = grid.getWidth() * cellSize;
