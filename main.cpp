@@ -27,6 +27,11 @@ int main() {
     // Initialiser la grille à partir du fichier fourni par l'utilisateur
     grid.initializeFromFile(filePath);
 
+    bool isToric;
+    std::cout << "Souhaitez-vous activer le mode torique ? (1 pour oui, 0 pour non) : ";
+    std::cin >> isToric;
+    grid.setToricMode(isToric); // Activer ou désactiver le mode torique
+
     int sleep_time;
     std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
     std::cin >> sleep_time;
