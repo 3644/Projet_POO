@@ -33,37 +33,33 @@ void Grid::initializeFromFile(const std::string& fileName) {
     }
 }
 
-// Placer un motif "Blinker" sur la grille
-void Grid::placeBlinker() {
-    srand(static_cast<unsigned>(time(0)));  // Initialiser le générateur aléatoire
-    int x = rand() % (height - 1);  // Générer des coordonnées aléatoires dans les limites
-    int y = rand() % (width - 2);
-
-    // Placer le motif "Blinker" sur la grille
-    cells[x][y] = 1;
-    cells[x][y + 1] = 1;
-    cells[x][y + 2] = 1;
-
-    // Afficher dans la console les coordonnées où le Blinker est placé
-    std::cout << "Blinker placé aux coordonnées (" << x << ", " << y << ")" << std::endl;
+// Placer un motif "Blinker" à une position donnée
+void Grid::placeBlinker(int x, int y) {
+    if (x >= 0 && x < height - 1 && y >= 0 && y < width - 2) { // Vérifier que le Blinker tient dans la grille
+        cells[x][y] = 1;
+        cells[x][y + 1] = 1;
+        cells[x][y + 2] = 1;
+        std::cout << "Blinker placé aux coordonnées (" << x << ", " << y << ")" << std::endl;
+    } else {
+        std::cerr << "Erreur : Le Blinker dépasse les limites de la grille." << std::endl;
+    }
 }
 
-// Placer un motif "Glider" sur la grille
-void Grid::placeGlider() {
-    srand(static_cast<unsigned>(time(0)) + 1);  // Ajouter une variation pour des valeurs différentes
-    int x = rand() % (height - 2);
-    int y = rand() % (width - 2);
 
-    // Placer le motif "Glider" sur la grille
-    cells[x][y + 1] = 1;
-    cells[x + 1][y + 2] = 1;
-    cells[x + 2][y] = 1;
-    cells[x + 2][y + 1] = 1;
-    cells[x + 2][y + 2] = 1;
-
-    // Afficher dans la console les coordonnées où le Glider est placé
-    std::cout << "Glider placé aux coordonnées (" << x << ", " << y << ")" << std::endl;
+// Placer un motif "Glider" à une position donnée
+void Grid::placeGlider(int x, int y) {
+    if (x >= 0 && x < height - 2 && y >= 0 && y < width - 2) { // Vérifier que le Glider tient dans la grille
+        cells[x][y + 1] = 1;
+        cells[x + 1][y + 2] = 1;
+        cells[x + 2][y] = 1;
+        cells[x + 2][y + 1] = 1;
+        cells[x + 2][y + 2] = 1;
+        std::cout << "Glider placé aux coordonnées (" << x << ", " << y << ")" << std::endl;
+    } else {
+        std::cerr << "Erreur : Le Glider dépasse les limites de la grille." << std::endl;
+    }
 }
+
 
 // Obtenir l'état d'une cellule spécifique
 int Grid::getCellState(int x, int y) const {
@@ -72,28 +68,32 @@ int Grid::getCellState(int x, int y) const {
 
 // Dessiner la grille sur la fenêtre SFML
 void Grid::render(sf::RenderWindow &window) {
-    sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));  // Créer un rectangle pour chaque cellule
-
     for (int x = 0; x < height; ++x) {
         for (int y = 0; y < width; ++y) {
-            cell.setPosition(y * cellSize, x * cellSize);  // Positionner la cellule
+            sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f)); // Créer un rectangle pour chaque cellule
+            cell.setPosition(y * cellSize, x * cellSize); // Positionner la cellule
+            
             if (cells[x][y] == 1) {
                 cell.setFillColor(sf::Color::White);  // Cellule vivante
-            } else if (cells[x][y] == obstacle) {
-                cell.setFillColor(sf::Color::Red);  // Cellules obstacles en rouge
+            } else if (cells[x][y] == 2) {
+                cell.setFillColor(sf::Color::Red);    // Obstacle mort
+            } else if (cells[x][y] == 3) {
+                cell.setFillColor(sf::Color::Blue);   // Obstacle vivant
             } else {
                 cell.setFillColor(sf::Color::Black);  // Cellule morte
             }
-            window.draw(cell);  // Dessiner la cellule
+
+            window.draw(cell); // Dessiner la cellule
         }
     }
 }
 
+
 // Compter le nombre de voisins vivants d'une cellule
 int Grid::countLivingNeighbors(int x, int y) const {
     // Tableau des décalages pour les 8 voisins potentiels
-    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1}; //  Variations de l'axe x pour aller vers chaque voisin
-    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1}; // pour y
+    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1}; // Variations de l'axe x pour aller vers chaque voisin
+    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1}; // Variations de l'axe y pour aller vers chaque voisin
     int count = 0;
 
     // Parcourir les 8 voisins potentiels autour de la cellule (x, y)
@@ -103,8 +103,8 @@ int Grid::countLivingNeighbors(int x, int y) const {
 
         // Vérifier si les coordonnées du voisin sont dans les limites de la grille
         if (nx >= 0 && nx < height && ny >= 0 && ny < width) {
-            // Si la cellule voisine est vivante (valeur 1), incrémenter le compteur
-            if (cells[nx][ny] == 1) {
+            // Si la cellule voisine est vivante (valeur 1) ou obstacle vivant (valeur 3), incrémenter le compteur
+            if (cells[nx][ny] == 1 || cells[nx][ny] == 3) {
                 count++;
             }
         }
@@ -112,22 +112,28 @@ int Grid::countLivingNeighbors(int x, int y) const {
     return count;  // Retourner le nombre de voisins vivants
 }
 
+
 // Calculer l'état suivant de la grille
 void Grid::computeNextState() {
-    std::vector<std::vector<int>> newCells = cells;
+    std::vector<std::vector<int>> newCells = cells; // Créer une copie des états actuels
+
+    // Parcourir toutes les cellules de la grille
     for (int x = 0; x < height; ++x) {
         for (int y = 0; y < width; ++y) {
-            if (cells[x][y] == obstacle) {
-                continue;  // Cellulles obstacles ne changent pas d'état
+            // Ignorer les cellules obstacles, elles ne changent pas d'état
+            if (cells[x][y] == 2 || cells[x][y] == 3) {
+                continue;
             }
 
+            // Compter les voisins vivants de la cellule actuelle
             int livingNeighbors = countLivingNeighbors(x, y);
 
+            // Règles pour les cellules vivantes
             if (cells[x][y] == 1) {  // Cellule vivante
                 if (livingNeighbors < 2 || livingNeighbors > 3) {
                     newCells[x][y] = 0;  // Cellule meurt par sous-population ou surpopulation
                 }
-            } else {  // Cellule morte
+            } else {  // Cellules mortes
                 if (livingNeighbors == 3) {
                     newCells[x][y] = 1;  // Cellule devient vivante par reproduction
                 }
@@ -137,6 +143,7 @@ void Grid::computeNextState() {
 
     cells = newCells;  // Mise à jour de la grille avec les nouveaux états
 }
+
 
 // Compter le nombre total de cellules vivantes dans la grille
 int Grid::countLivingCells() const {
@@ -149,4 +156,25 @@ int Grid::countLivingCells() const {
         }
     }
     return count;
+}
+
+void Grid::placeObstacle(int x, int y, int state) {
+    if (x >= 0 && x < height && y >= 0 && y < width) {
+        if (state == 2 || state == 3) {
+            cells[x][y] = state;
+            std::cout << "Obstacle placé aux coordonnées (" << x << ", " << y << ") avec état " << state << "." << std::endl;
+        } else {
+            std::cerr << "Erreur : L'état de l'obstacle doit être 2 (mort) ou 3 (vivant)." << std::endl;
+        }
+    } else {
+        std::cerr << "Erreur : Les coordonnées sont en dehors des limites de la grille." << std::endl;
+    }
+}
+
+void Grid::placeRandomObstacle(int state) {
+    srand(static_cast<unsigned>(time(0)) + rand()); // Initialise le générateur aléatoire avec une variation
+    int x = rand() % height;
+    int y = rand() % width;
+
+    placeObstacle(x, y, state);
 }

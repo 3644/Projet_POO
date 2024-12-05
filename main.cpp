@@ -29,8 +29,7 @@ int main() {
 
     int sleep_time;
     std::cout << "Choisissez la durée entre les itérations (en millisecondes) : ";
-    std::cin >> sleep_time; 
-
+    std::cin >> sleep_time;
 
     // Demander à l'utilisateur de choisir un mode (console ou graphique)
     int mode;
@@ -38,120 +37,70 @@ int main() {
     std::cout << "Tapez 0 pour le Mode Graphique.\n";
     std::cin >> mode;
 
+    if (mode == 1) {
+        // Mode console
+        int iterations;
+        std::cout << "Combien d'itérations voulez-vous exécuter ? (Entrez -1 pour une exécution infinie jusqu'à stabilisation) ";
+        std::cin >> iterations;
 
-    
+        // Demander à l'utilisateur s'il souhaite un mode manuel ou automatique
+        int manualMode;
+        std::cout << "Tapez 1 pour le mode manuel (b/g/n pour interagir), ou 0 pour le mode automatique : ";
+        std::cin >> manualMode;
 
-if (mode == 1) {
-    // Mode console
-    int iterations;
-    std::cout << "Combien d'itérations voulez-vous exécuter ? (Entrez -1 pour une exécution infinie jusqu'à stabilisation) ";
-    std::cin >> iterations;
+        int currentIteration = 0;
+        while (iterations == -1 || currentIteration < iterations) {
+            if (manualMode == 1) {
+                // Mode manuel : demander l'action à effectuer
+                char action;
+                std::cout << "Entrez 'b' pour ajouter un Blinker, 'g' pour ajouter un Glider, 'o' pour un obstacle, 'n' pour continuer : ";
+                std::cin >> action;
 
-    // Demander à l'utilisateur s'il souhaite un mode manuel ou automatique
-    int manualMode;
-    std::cout << "Tapez 1 pour le mode manuel (b/g/n pour interagir), ou 0 pour le mode automatique : ";
-    std::cin >> manualMode;
-
-    // Créer le dossier de sortie pour les fichiers d'état après chaque itération
-    std::string outputDir = "./" + fileName + "_out";
-    fs::create_directory(outputDir);
-
-    // Variable pour stocker l'état précédent de la grille
-    std::vector<std::vector<int>> previousState(grid.getHeight(), std::vector<int>(grid.getWidth()));
-
-    int currentIteration = 0;
-    bool stabilized = false;  // Indique si le jeu a atteint la stabilisation
-
-    while (iterations == -1 || currentIteration < iterations) {
-        // Ajouter des options pour placer des blinkers et des gliders
-        if (manualMode == 1) {
-            char action;
-            std::cout << "Entrez 'b' pour ajouter un Blinker, 'g' pour ajouter un Glider, ou 'n' pour continuer à la prochaine itération : ";
-            std::cin >> action;
-            if (action == 'b') {
-                grid.placeBlinker();
-            } else if (action == 'g') {
-                grid.placeGlider();
-            } else if (action != 'n') {
-                std::cout << "Action invalide. Veuillez entrer 'b', 'g', ou 'n'.\n";
-                continue; // Redemander une action valide
-            }
-        }
-
-        // Sauvegarder l'état actuel
-        for (int x = 0; x < grid.getHeight(); ++x) {
-            for (int y = 0; y < grid.getWidth(); ++y) {
-                previousState[x][y] = grid.getCellState(x, y);
-            }
-        }
-
-        // Nom du fichier de sortie pour chaque itération
-        std::string outputFilePath = outputDir + "/iteration_" + std::to_string(currentIteration) + ".txt";
-
-        // Ouvrir le fichier de sortie
-        std::ofstream outputFile(outputFilePath);
-        if (outputFile) {
-            // Écrire l'état actuel de la grille dans le fichier
-            for (int x = 0; x < grid.getHeight(); ++x) {
-                for (int y = 0; y < grid.getWidth(); ++y) {
-                    outputFile << grid.getCellState(x, y) << " ";
-                }
-                outputFile << "\n";
-            }
-            outputFile.close();  // Fermer le fichier après l'écriture
-        } else {
-            // Gérer l'erreur si le fichier ne peut pas être créé
-            std::cout << "Erreur : impossible de créer le fichier " << outputFilePath << std::endl;
-            return 1;  // Arrêter l'exécution en cas d'erreur
-        }
-
-        // Calculer le prochain état de la grille
-        grid.computeNextState();
-
-        // Vérifier si l'état est stable (grille identique à l'état précédent)
-        stabilized = true;
-        for (int x = 0; x < grid.getHeight(); ++x) {
-            for (int y = 0; y < grid.getWidth(); ++y) {
-                if (previousState[x][y] != grid.getCellState(x, y)) {
-                    stabilized = false;
-                    break;
+                if (action == 'b') {
+                    // Ajouter un Blinker à une position spécifique
+                    int x, y;
+                    std::cout << "Entrez les coordonnées (x, y) pour le Blinker : ";
+                    std::cin >> x >> y;
+                    grid.placeBlinker(x, y);
+                } else if (action == 'g') {
+                    // Ajouter un Glider à une position spécifique
+                    int x, y;
+                    std::cout << "Entrez les coordonnées (x, y) pour le Glider : ";
+                    std::cin >> x >> y;
+                    grid.placeGlider(x, y);
+                } else if (action == 'o') {
+                    // Ajouter un obstacle à une position spécifique
+                    int x, y, state;
+                    std::cout << "Entrez les coordonnées (x, y) et l'état de l'obstacle (2 pour mort, 3 pour vivant) : ";
+                    std::cin >> x >> y >> state;
+                    grid.placeObstacle(x, y, state);
+                } else if (action != 'n') {
+                    // Gérer une entrée invalide
+                    std::cout << "Action invalide.\n";
                 }
             }
-            if (!stabilized) break;
+
+            // Calculer le prochain état de la grille
+            grid.computeNextState();
+            ++currentIteration;
+
+            if (manualMode == 0) {
+                usleep(sleep_time * 1000);
+            }
         }
-
-        // Arrêter si la grille est stabilisée
-        if (stabilized) {
-            std::cout << "Le jeu est stabilisé à l'itération " << currentIteration << ".\n";
-            break;
-        }
-
-        ++currentIteration;
-
-        if (manualMode == 0) {
-            // Mode automatique : pause entre les itérations
-            usleep(sleep_time*1000);
-        }
-    }
-}
-
     } else if (mode == 0) {
         // Mode graphique
-        std::cout << "Presser la touche B ajoutera a la grille un Blinker a une position aléatoire.\n";
-        std::cout << "Presser la touche G ajoutera a la grille un Glider a une position aléatoire.\n";
-        std::cout << "Presser la touche P mettra le jeu en pause.\n";
+        sf::RenderWindow window(sf::VideoMode(grid.getWidth() * cellSize, grid.getHeight() * cellSize), "Jeu de la vie - Projet POO");
 
+        bool paused = false;
 
-        // Calculer les dimensions de la fenêtre en fonction de la grille et de la taille des cellules
-        const int windowWidth = grid.getWidth() * cellSize;
-        const int windowHeight = grid.getHeight() * cellSize;
+        std::cout << "Mode graphique activé. Utilisez les actions suivantes :\n";
+        std::cout << "- Clic gauche : Placer un obstacle mort (état 2).\n";
+        std::cout << "- Clic droit : Placer un obstacle vivant (état 3).\n";
+        std::cout << "- Touche B : Ajouter un Blinker à la position du curseur.\n";
+        std::cout << "- Touche G : Ajouter un Glider à la position du curseur.\n";
+        std::cout << "- Touche P : Mettre en pause ou reprendre le jeu.\n";
 
-        // Créer la fenêtre SFML pour l'affichage du jeu
-        sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Jeu de la vie -  Projet POO");
-
-        bool paused = false;  // Variable pour contrôler l'état de pause
-
-        // Boucle principale de la fenêtre graphique
         while (window.isOpen()) {
             sf::Event event;
             while (window.pollEvent(event)) {
@@ -159,30 +108,46 @@ if (mode == 1) {
                     // Fermer la fenêtre si l'utilisateur clique sur la croix
                     window.close();
                 } else if (event.type == sf::Event::KeyPressed) {
-                    // Gérer les différentes touches pressées par l'utilisateur
-                    if (event.key.code == sf::Keyboard::B) {
-                        grid.placeBlinker();  // Placer un motif Blinker sur la grille
-                    } else if (event.key.code == sf::Keyboard::G) {
-                        grid.placeGlider();  // Placer un motif Glider sur la grille
-                    } else if (event.key.code == sf::Keyboard::P) {
+                    // Obtenir la position actuelle du curseur dans la fenêtre
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    int x = mousePos.y / cellSize;
+                    int y = mousePos.x / cellSize;
+
+                    if (x >= 0 && x < grid.getHeight() && y >= 0 && y < grid.getWidth()) {
+                        if (event.key.code == sf::Keyboard::B) {
+                            grid.placeBlinker(x, y);
+                        } else if (event.key.code == sf::Keyboard::G) {
+                            grid.placeGlider(x, y);
+                        }
+                    } else {
+                        std::cerr << "Erreur : Le curseur est en dehors des limites de la grille.\n";
+                    }
+
+                    if (event.key.code == sf::Keyboard::P) {
                         paused = !paused;  // Basculer l'état de pause
+                    }
+                } else if (event.type == sf::Event::MouseButtonPressed) {
+                    // Gérer les clics de souris pour placer des obstacles
+                    int x = event.mouseButton.y / cellSize;
+                    int y = event.mouseButton.x / cellSize;
+
+                    if (x >= 0 && x < grid.getHeight() && y >= 0 && y < grid.getWidth()) {
+                        if (event.mouseButton.button == sf::Mouse::Left) {
+                            grid.placeObstacle(x, y, 2);  // Obstacle mort
+                            std::cout << "Obstacle mort placé à (" << x << ", " << y << ").\n";
+                        } else if (event.mouseButton.button == sf::Mouse::Right) {
+                            grid.placeObstacle(x, y, 3);  // Obstacle vivant
+                            std::cout << "Obstacle vivant placé à (" << x << ", " << y << ").\n";
+                        }
+                    } else {
+                        std::cerr << "Erreur : Les coordonnées du clic sont en dehors des limites de la grille.\n";
                     }
                 }
             }
 
             if (!paused) {
-                // Calculer le prochain état de la grille uniquement si le jeu n'est pas en pause
                 grid.computeNextState();
-
-                // Calculer le nombre de cellules vivantes et mortes
-                int livingCells = grid.countLivingCells();
-                int totalCells = grid.getWidth() * grid.getHeight();
-                int deadCells = totalCells - livingCells;
-
-                // Afficher dans la console le nombre de cellules vivantes et mortes
-                std::cout << "Vivantes: " << livingCells << " | Mortes: " << deadCells << std::endl;
             }
-
             // Effacer la fenêtre pour un nouvel affichage
             window.clear();
             grid.render(window);  // Dessiner la grille dans la fenêtre
@@ -193,7 +158,7 @@ if (mode == 1) {
                 usleep(sleep_time*1000); //microsecondes en millisecondes
             }
         }
+    }
 
         return 0;  // Terminer le programme
-    }
 }
