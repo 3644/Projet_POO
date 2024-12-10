@@ -48,6 +48,10 @@ int main() {
         std::cout << "Combien d'itérations voulez-vous exécuter ? (Entrez -1 pour une exécution infinie jusqu'à stabilisation) ";
         std::cin >> iterations;
 
+        // Créer un dossier pour stocker les résultats
+        std::string outputDir = "./" + fileName + "_out";
+        fs::create_directory(outputDir);
+
         // Demander à l'utilisateur s'il souhaite un mode manuel ou automatique
         int manualMode;
         std::cout << "Tapez 1 pour le mode manuel (b/g/n pour interagir), ou 0 pour le mode automatique : ";
@@ -85,12 +89,28 @@ int main() {
                 }
             }
 
+            // Enregistrer l'état actuel dans un fichier
+            std::string outputFile = outputDir + "/iteration_" + std::to_string(currentIteration) + ".txt";
+            std::ofstream outFile(outputFile);
+            if (outFile.is_open()) {
+                outFile << grid.getHeight() << " " << grid.getWidth() << "\n";
+                for (int x = 0; x < grid.getHeight(); ++x) {
+                    for (int y = 0; y < grid.getWidth(); ++y) {
+                        outFile << grid.getCellState(x, y) << " ";
+                    }
+                    outFile << "\n";
+                }
+                outFile.close();
+            } else {
+                std::cerr << "Erreur : Impossible de créer le fichier " << outputFile << ".\n";
+            }
+
             // Calculer le prochain état de la grille
             grid.computeNextState();
             ++currentIteration;
 
             if (manualMode == 0) {
-                usleep(sleep_time * 1000);
+                usleep(sleep_time * 1000); // Pause entre les itérations
             }
         }
     } else if (mode == 0) {
@@ -160,10 +180,10 @@ int main() {
 
             // Pause entre les itérations pour réguler la vitesse d'affichage
             if (!paused) {
-                usleep(sleep_time*1000); //microsecondes en millisecondes
+                usleep(sleep_time * 1000); // Microsecondes en millisecondes
             }
         }
     }
 
-        return 0;  // Terminer le programme
+    return 0;  // Terminer le programme
 }
