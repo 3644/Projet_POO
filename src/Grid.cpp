@@ -28,8 +28,8 @@ void Grid::initializeFromFile(const std::string& fileName) {
         fichier.close();  // Fermer le fichier après la lecture
     } else {
         // Gérer l'erreur si le fichier ne peut pas être ouvert
-        std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
-        exit(EXIT_FAILURE);
+    std::cerr << "Impossible d'ouvrir le fichier : " << fileName << std::endl;
+    exit(EXIT_FAILURE);
     }
 }
 
